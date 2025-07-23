@@ -1,0 +1,58 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer decorative ring -->
+  <circle
+    cx="12"
+    cy="12"
+    r="11"
+    stroke="currentColor"
+    stroke-width="0.5"
+    fill="none"
+  />
+
+  <!-- Diamond shape -->
+  <path
+    d="M12 4L16 12L12 20L8 12L12 4Z"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!-- Decorative horizontal line -->
+  <path
+    d="M8 12H16"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+  />
+
+  <!-- Center dot -->
+  <circle
+    cx="12"
+    cy="12"
+    r="1.5"
+    fill="currentColor"
+  />
+
+  <!-- Premium accent lines -->
+  <path
+    d="M12 7L14 12L12 17"
+    stroke="currentColor"
+    stroke-width="0.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+
+  <!-- Subtle background glow -->
+  <circle
+    cx="12"
+    cy="12"
+    r="6"
+    stroke="currentColor"
+    stroke-width="0.25"
+    stroke-opacity="0.3"
+    fill="none"
+  />
+</svg>
