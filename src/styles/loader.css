@@ -1,0 +1,77 @@
+/* GPU-accelerated loader styles for optimal performance */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
+
+.loading-spinner {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.optimized-text {
+  text-rendering: optimizeSpeed;
+  font-smooth: never;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Modern loader animations */
+@keyframes modern-spin {
+  from {
+    transform: rotate(0deg) translateZ(0);
+  }
+  to {
+    transform: rotate(360deg) translateZ(0);
+  }
+}
+
+@keyframes modern-pulse {
+  0%, 100% {
+    transform: scale(1) translateZ(0);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2) translateZ(0);
+    opacity: 0.6;
+  }
+}
+
+@keyframes dot-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1) translateZ(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-4px) scale(1.4) translateZ(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth transitions for better UX */
+.loader-container {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .loading-spinner {
+    filter: brightness(1.1);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .gpu-accelerated,
+  .loading-spinner {
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+  }
+  
+  .modern-pulse,
+  .dot-bounce {
+    animation: none;
+  }
+}

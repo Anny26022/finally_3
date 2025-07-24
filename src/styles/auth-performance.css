@@ -1,0 +1,159 @@
+/* Auth Modal Performance Optimizations */
+
+/* GPU acceleration for all auth components */
+.auth-modal-container {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity, filter;
+}
+
+.auth-modal-backdrop {
+  transform: translate3d(0, 0, 0);
+  will-change: opacity;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.auth-modal-card {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Optimized form inputs */
+.auth-input {
+  transition: border-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: border-color;
+  transform: translate3d(0, 0, 0);
+}
+
+.auth-input:focus {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Optimized buttons */
+.auth-button {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background-color, transform;
+  transform: translate3d(0, 0, 0);
+}
+
+.auth-button:hover {
+  transform: translate3d(0, -1px, 0);
+}
+
+.auth-button:active {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Smooth loading spinner */
+.auth-spinner {
+  animation: auth-spin 1s linear infinite;
+  will-change: transform;
+  transform-origin: center;
+}
+
+@keyframes auth-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Social auth buttons optimization */
+.social-auth-button {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background-color, border-color;
+  transform: translate3d(0, 0, 0);
+}
+
+.social-auth-button:hover {
+  transform: translate3d(0, -1px, 0);
+}
+
+/* Icon optimization */
+.auth-icon {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Prevent layout shifts */
+.auth-form-container {
+  contain: layout style paint;
+}
+
+/* Error/Success message animations */
+.auth-message {
+  animation: auth-slide-in 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+@keyframes auth-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .auth-modal-container,
+  .auth-input,
+  .auth-button,
+  .social-auth-button,
+  .auth-message {
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* High refresh rate optimization */
+@media (min-resolution: 120dpi) {
+  .auth-modal-container {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .auth-modal-backdrop {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .auth-modal-container {
+    will-change: transform, opacity;
+  }
+  
+  .auth-modal-backdrop {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* Focus optimizations */
+.auth-input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Prevent flash of unstyled content */
+.auth-modal-container[data-loading="true"] {
+  opacity: 0;
+}
+
+.auth-modal-container[data-loading="false"] {
+  opacity: 1;
+  transition: opacity 0.2s ease-out;
+}

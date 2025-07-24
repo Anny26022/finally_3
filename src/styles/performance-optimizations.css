@@ -1,0 +1,284 @@
+/* Performance-Optimized CSS for Nexus Trading Journal */
+
+/* GPU Acceleration for smooth animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimized table rendering */
+.trade-table {
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+
+.trade-table-row {
+  contain: layout style;
+  will-change: background-color;
+  transition: background-color 0.15s ease-out;
+}
+
+.trade-table-cell {
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+/* Smooth scrolling optimizations */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Modal and overlay optimizations */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+.modal-content {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+/* Button hover optimizations */
+.optimized-button {
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+.optimized-button:hover {
+  transform: translateY(-1px) translateZ(0);
+}
+
+/* Card and container optimizations */
+.performance-card {
+  contain: layout style paint;
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.performance-card:hover {
+  transform: translateY(-2px) translateZ(0);
+}
+
+/* Input field optimizations */
+.optimized-input {
+  contain: layout style;
+  will-change: border-color, box-shadow;
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+/* Dropdown and menu optimizations */
+.dropdown-menu {
+  contain: layout style paint;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Loading spinner optimizations */
+.loading-spinner {
+  transform: translateZ(0);
+  will-change: transform;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg) translateZ(0); }
+  to { transform: rotate(360deg) translateZ(0); }
+}
+
+/* Chart container optimizations */
+.chart-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Virtual scrolling optimizations */
+.virtual-scroll-container {
+  contain: strict;
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+.virtual-scroll-item {
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+/* Navigation optimizations */
+.nav-item {
+  contain: layout style;
+  will-change: background-color, color;
+  transition: background-color 0.15s ease-out, color 0.15s ease-out;
+}
+
+/* Tooltip optimizations */
+.tooltip {
+  contain: layout style paint;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Image optimizations */
+.optimized-image {
+  contain: layout style;
+  will-change: transform;
+  transition: transform 0.2s ease-out;
+}
+
+/* Text selection optimizations */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .gpu-accelerated {
+    will-change: auto;
+  }
+}
+
+/* High contrast mode optimizations */
+@media (prefers-contrast: high) {
+  .performance-card {
+    border: 2px solid;
+  }
+  
+  .optimized-button {
+    border: 2px solid;
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .modal-backdrop {
+    backdrop-filter: blur(12px) brightness(0.8);
+    -webkit-backdrop-filter: blur(12px) brightness(0.8);
+  }
+}
+
+/* Print optimizations */
+@media print {
+  .gpu-accelerated,
+  .performance-card,
+  .optimized-button {
+    transform: none !important;
+    will-change: auto !important;
+    transition: none !important;
+  }
+}
+
+/* Focus optimizations for keyboard navigation */
+.focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Memory-efficient animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px) translateZ(0); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) translateZ(0); 
+  }
+}
+
+@keyframes fadeOut {
+  from { 
+    opacity: 1; 
+    transform: translateY(0) translateZ(0); 
+  }
+  to { 
+    opacity: 0; 
+    transform: translateY(-10px) translateZ(0); 
+  }
+}
+
+/* Optimized table sticky headers */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  contain: layout style paint;
+}
+
+/* Optimized scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s ease-out;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Layout shift prevention */
+.prevent-layout-shift {
+  contain: layout;
+  min-height: 1px;
+}
+
+/* Optimized grid layouts */
+.performance-grid {
+  display: grid;
+  contain: layout style;
+  will-change: grid-template-columns;
+}
+
+/* Efficient text rendering */
+.optimized-text {
+  text-rendering: optimizeSpeed;
+  font-display: swap;
+}
+
+/* Reduce repaints for frequently updated elements */
+.frequent-update {
+  contain: layout style paint;
+  will-change: contents;
+}
