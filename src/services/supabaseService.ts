@@ -268,7 +268,7 @@ export class SupabaseService {
   private static readonly MAX_RETRIES = 3;
   private static readonly RETRY_BASE_DELAY = 1000; // 1 second base delay
   private static readonly RETRY_MAX_DELAY = 5000; // 5 seconds max delay
-  private static readonly PAGE_SIZE = 500; // Optimized page size for faster initial load
+  private static readonly PAGE_SIZE = 1500; // Increased to handle larger datasets
 
   // ===== CACHE MANAGEMENT =====
 
@@ -680,7 +680,7 @@ export class SupabaseService {
   }
 
   /**
-   * PRODUCTION-SAFE Smart Loading - ALWAYS uses pagination for performance and safety
+   * INTELLIGENT Smart Loading - Automatically detects dataset size and loads accordingly
    * @param options - Loading options
    * @returns Trades with pagination information
    */
@@ -690,18 +690,16 @@ export class SupabaseService {
     maxResults?: number;
   } = {}): Promise<{
     trades: Trade[];
-    strategy: 'paginated';
+    strategy: 'smart-single' | 'smart-paginated';
     totalCount: number;
     hasMore: boolean;
     page: number;
     pageSize: number;
   }> {
-    const { pageSize = this.PAGE_SIZE, page = 1, maxResults = 1000 } = options;
-
     try {
       const userId = await this.getAuthenticatedUserId();
 
-      // Get total count first
+      // Get total count first to determine strategy
       const { count, error: countError } = await supabase
         .from('trades')
         .select('*', { count: 'exact', head: true })
@@ -711,32 +709,67 @@ export class SupabaseService {
 
       const totalCount = count || 0;
 
-      // ALWAYS use pagination for production safety
-      console.log(`📊 PRODUCTION-SAFE loading: ${totalCount} trades, using PAGINATED strategy (page ${page}, size ${pageSize})`);
+      // SMART STRATEGY: Automatically determine optimal loading approach
+      if (totalCount <= 2000) {
+        // STRATEGY 1: Load all trades in a single request for small-medium datasets
+        console.log(`🧠 SMART loading: ${totalCount} trades detected, using SINGLE-LOAD strategy for optimal performance`);
 
-      // Limit page size for performance
-      const safePage = Math.max(1, page);
-      const safePageSize = Math.min(pageSize, maxResults);
+        const { data, error } = await supabase
+          .from('trades')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
 
-      const result = await this.getPaginatedTrades(safePage, safePageSize);
+        if (error) throw error;
 
-      return {
-        trades: result.data,
-        strategy: 'paginated',
-        totalCount: result.totalCount,
-        hasMore: result.hasMore,
-        page: result.page,
-        pageSize: result.pageSize,
-      };
+        const trades = (data || []).map(dbRowToTrade);
+
+        return {
+          trades,
+          strategy: 'smart-single',
+          totalCount,
+          hasMore: false,
+          page: 1,
+          pageSize: totalCount,
+        };
+      } else {
+        // STRATEGY 2: Use intelligent pagination for large datasets
+        console.log(`🧠 SMART loading: ${totalCount} trades detected, using INTELLIGENT-PAGINATION strategy`);
+
+        // Calculate optimal page size based on dataset size
+        let optimalPageSize: number;
+        if (totalCount <= 5000) {
+          optimalPageSize = Math.min(1000, totalCount);
+        } else if (totalCount <= 10000) {
+          optimalPageSize = 1500;
+        } else {
+          optimalPageSize = 2000;
+        }
+
+        const { pageSize = optimalPageSize, page = 1, maxResults = totalCount } = options;
+        const safePage = Math.max(1, page);
+        const safePageSize = Math.min(pageSize, maxResults);
+
+        const result = await this.getPaginatedTrades(safePage, safePageSize);
+
+        return {
+          trades: result.data,
+          strategy: 'smart-paginated',
+          totalCount: result.totalCount,
+          hasMore: result.hasMore,
+          page: result.page,
+          pageSize: result.pageSize,
+        };
+      }
     } catch (error) {
-      console.error('❌ Failed to get trades with smart loading:', error);
+      console.error('❌ Smart loading failed:', error);
       return {
         trades: [],
-        strategy: 'paginated',
+        strategy: 'smart-single',
         totalCount: 0,
         hasMore: false,
         page: 1,
-        pageSize: pageSize,
+        pageSize: 0,
       };
     }
   }

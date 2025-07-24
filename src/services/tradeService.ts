@@ -21,12 +21,8 @@ export async function getTrades(): Promise<Trade[]> {
     const startTime = performance.now();
     console.log('🚀 [tradeService] STABLE queryFn - Starting enterprise-scale trade loading...');
 
-    // PERFORMANCE OPTIMIZATION: Use smart loading with optimized page size for faster initial load
-    const result = await SupabaseService.getTradesWithSmartLoading({
-      maxFullLoadSize: 2000, // Increased for better performance
-      pageSize: 500,         // Optimized page size for faster initial load
-      maxResults: 5000       // Support for very large datasets
-    });
+    // INTELLIGENT LOADING: Let smart loading automatically determine optimal strategy
+    const result = await SupabaseService.getTradesWithSmartLoading();
 
     const loadTime = performance.now() - startTime;
     console.log(`✅ [tradeService] Loaded ${result.trades?.length || 0} trades in ${loadTime.toFixed(2)}ms using ${result.strategy} strategy`);
