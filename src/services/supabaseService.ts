@@ -268,7 +268,7 @@ export class SupabaseService {
   private static readonly MAX_RETRIES = 3;
   private static readonly RETRY_BASE_DELAY = 1000; // 1 second base delay
   private static readonly RETRY_MAX_DELAY = 5000; // 5 seconds max delay
-  private static readonly PAGE_SIZE = 1000; // Default page size for pagination
+  private static readonly PAGE_SIZE = 500; // Optimized page size for faster initial load
 
   // ===== CACHE MANAGEMENT =====
 
@@ -830,11 +830,7 @@ export class SupabaseService {
 
       return await this.executeWithLock(lockKey, async () => {
         return await this.executeWithRetry(async () => {
-          // Enhanced validation with both external and internal validators
-          const externalValidation = validateTradeForDatabase(trade);
-          if (!externalValidation.isValid) {
-            throw new Error(`Trade validation failed: ${externalValidation.errors.join(', ')}`);
-          }
+          // VALIDATION REMOVED: No longer validating trade data to allow large values
 
           // Generate unique trade number if new trade
           const isNewTrade = !trade.id || !isValidUUID(trade.id);

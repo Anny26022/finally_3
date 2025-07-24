@@ -21,10 +21,10 @@ export async function getTrades(): Promise<Trade[]> {
     const startTime = performance.now();
     console.log('🚀 [tradeService] STABLE queryFn - Starting enterprise-scale trade loading...');
 
-    // PERFORMANCE OPTIMIZATION: Use smart loading with larger page size for better performance
+    // PERFORMANCE OPTIMIZATION: Use smart loading with optimized page size for faster initial load
     const result = await SupabaseService.getTradesWithSmartLoading({
       maxFullLoadSize: 2000, // Increased for better performance
-      pageSize: 1000,        // Optimal page size for large datasets
+      pageSize: 500,         // Optimized page size for faster initial load
       maxResults: 5000       // Support for very large datasets
     });
 
@@ -32,16 +32,9 @@ export async function getTrades(): Promise<Trade[]> {
     console.log(`✅ [tradeService] Loaded ${result.trades?.length || 0} trades in ${loadTime.toFixed(2)}ms using ${result.strategy} strategy`);
     console.log(`🎯 [tradeService] STABLE queryFn executed - TanStack Query will cache and deduplicate this`);
 
-    // PERFORMANCE OPTIMIZATION: Pre-sort by trade number for better rendering performance
+    // PERFORMANCE OPTIMIZATION: Skip pre-sorting to improve load times
+    // Sorting is handled by the UI components when needed
     const trades = result.trades || [];
-    if (trades.length > 100) {
-      console.log('📊 Pre-sorting large dataset for optimal rendering...');
-      trades.sort((a, b) => {
-        const aNum = Number(a.tradeNo) || 0;
-        const bNum = Number(b.tradeNo) || 0;
-        return aNum - bNum;
-      });
-    }
 
     return trades;
   } catch (error) {

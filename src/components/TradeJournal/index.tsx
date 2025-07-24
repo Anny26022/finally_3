@@ -946,11 +946,31 @@ export const TradeJournal: React.FC<TradeJournalProps> = React.memo(function Tra
       let cummPf = 0;
 
       monthlyPortfolios.forEach(monthData => {
+        // CRITICAL FIX: Apply same fallback logic as charts and monthly performance table
+        // Get trades for this month to recalculate P/L if needed
+        const monthTrades = trades.filter(trade => {
+          if (!trade.date) return false;
+          const tradeDate = new Date(trade.date);
+          if (isNaN(tradeDate.getTime())) return false;
+          const tradeMonth = tradeDate.toLocaleString('default', { month: 'short' });
+          const tradeYear = tradeDate.getFullYear();
+          return tradeMonth === monthData.month && tradeYear === monthData.year;
+        });
+
+        // If monthData.pl is 0 but we have trades, recalculate P/L directly from trades
+        let actualPL = monthData.pl;
+        if (monthTrades.length > 0 && monthData.pl === 0) {
+          // Recalculate P/L directly from trades as fallback
+          actualPL = monthTrades.reduce((sum, trade) => {
+            return sum + calculateTradePL(trade, useCashBasis);
+          }, 0);
+        }
+
         // Calculate monthly return percentage: (P/L / Effective Starting Capital) * 100
-        // CRITICAL FIX: Use effectiveStartingCapital instead of startingCapital (which doesn't exist)
+        // CRITICAL FIX: Use effectiveStartingCapital and corrected P/L
         const effectiveCapital = monthData.effectiveStartingCapital || 0;
-        const monthlyReturn = (effectiveCapital !== 0 && isFinite(effectiveCapital) && isFinite(monthData.pl))
-          ? (monthData.pl / effectiveCapital) * 100
+        const monthlyReturn = (effectiveCapital !== 0 && isFinite(effectiveCapital) && isFinite(actualPL))
+          ? (actualPL / effectiveCapital) * 100
           : 0;
 
         // Only add finite values to prevent NaN propagation

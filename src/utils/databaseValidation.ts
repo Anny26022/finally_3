@@ -31,56 +31,9 @@ export interface ValidationResult {
 export function validateTradeForDatabase(trade: Trade): ValidationResult {
   const errors: string[] = []
   const warnings: string[] = []
-  
-  // Check for extremely large values that might cause overflow
-  const numericChecks = [
-    { field: 'entry', value: trade.entry, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'avgEntry', value: trade.avgEntry, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'sl', value: trade.sl, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'tsl', value: trade.tsl, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'cmp', value: trade.cmp, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'pyramid1Price', value: trade.pyramid1Price, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'pyramid2Price', value: trade.pyramid2Price, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'exit1Price', value: trade.exit1Price, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'exit2Price', value: trade.exit2Price, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'exit3Price', value: trade.exit3Price, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'avgExitPrice', value: trade.avgExitPrice, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'price' },
-    { field: 'rewardRisk', value: trade.rewardRisk, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'ratio' },
-    
-    // Quantity fields
-    { field: 'initialQty', value: trade.initialQty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    { field: 'pyramid1Qty', value: trade.pyramid1Qty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    { field: 'pyramid2Qty', value: trade.pyramid2Qty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    { field: 'exit1Qty', value: trade.exit1Qty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    { field: 'exit2Qty', value: trade.exit2Qty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    { field: 'exit3Qty', value: trade.exit3Qty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    { field: 'openQty', value: trade.openQty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    { field: 'exitedQty', value: trade.exitedQty, max: DB_CONSTRAINTS.STANDARD_NUMERIC, type: 'quantity' },
-    
-    // Large amount fields
-    { field: 'positionSize', value: trade.positionSize, max: DB_CONSTRAINTS.LARGE_AMOUNT, type: 'amount' },
-    { field: 'realisedAmount', value: trade.realisedAmount, max: DB_CONSTRAINTS.LARGE_AMOUNT, type: 'amount' },
-    { field: 'plRs', value: trade.plRs, max: DB_CONSTRAINTS.LARGE_AMOUNT, type: 'amount' },
-    
-    // Percentage fields
-    { field: 'allocation', value: trade.allocation, max: DB_CONSTRAINTS.PERCENTAGE, type: 'percentage' },
-    { field: 'slPercent', value: trade.slPercent, max: DB_CONSTRAINTS.PERCENTAGE, type: 'percentage' },
-    { field: 'pfImpact', value: trade.pfImpact, max: DB_CONSTRAINTS.PERCENTAGE, type: 'percentage' },
-    { field: 'cummPf', value: trade.cummPf, max: DB_CONSTRAINTS.PERCENTAGE, type: 'percentage' },
-    { field: 'stockMove', value: trade.stockMove, max: DB_CONSTRAINTS.PERCENTAGE, type: 'percentage' },
-    { field: 'openHeat', value: trade.openHeat, max: DB_CONSTRAINTS.PERCENTAGE, type: 'percentage' },
-    
-    // Integer fields
-    { field: 'holdingDays', value: trade.holdingDays, max: DB_CONSTRAINTS.INTEGER, type: 'integer' }
-  ]
 
-  numericChecks.forEach(check => {
-    if (typeof check.value === 'number' && !isNaN(check.value)) {
-      if (Math.abs(check.value) > check.max) {
-        errors.push(`${check.field} value ${check.value} exceeds maximum allowed ${check.type} value of ${check.max}`)
-      }
-    }
-  })
+  // VALIDATION REMOVED: No longer checking numeric constraints to allow large values
+  // This prevents errors when cumulative P&F values exceed arbitrary limits
 
   // Check for required fields (name and tradeNo can be empty as users control them)
   const requiredFields = ['id', 'date']

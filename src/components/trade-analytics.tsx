@@ -20,6 +20,8 @@ import { useDashboardConfig } from "../hooks/use-dashboard-config";
 import { pageVariants, cardVariants, fadeInVariants } from "../utils/animations";
 import { useAnalyticsCalculations, AnalyticsCalculationResult } from "../hooks/calculations/useAnalyticsCalculations";
 import { useAccountingMethod } from "../context/AccountingMethodContext";
+import { useTruePortfolioWithTrades } from "../hooks/use-true-portfolio-with-trades";
+import { calculateTradePL } from "../utils/accountingUtils";
 import { Loader } from "./Loader";
 import { useGlobalFilter } from "../context/GlobalFilterContext";
 import { Trade } from "../types/trade";
@@ -307,13 +309,71 @@ export const TradeAnalytics = React.memo(function TradeAnalytics() {
   const [chartData, setChartData] = useState([]);
   const handleChartDataUpdate = useCallback((data) => { setChartData(data); }, []);
 
-  
+
+
+
   // --- DATA PROCESSING & PERFORMANCE OPTIMIZATION ---
 
   // WORLD-CLASS ARCHITECTURE: Use processed trades that already have cash basis expansion
   const trades = useMemo(() => {
     return processedTrades?.map(trade => ({ ...trade })) || [];
   }, [processedTrades]);
+
+  // Get portfolio functions for YTD calculation (after trades is defined)
+  const { getAllMonthlyTruePortfolios } = useTruePortfolioWithTrades(trades);
+
+  // Calculate YTD percentage using the same logic as other components
+  const ytdPercentage = useMemo(() => {
+    try {
+      const currentYear = new Date().getFullYear();
+      const monthlyPortfolios = getAllMonthlyTruePortfolios();
+
+      if (!monthlyPortfolios || monthlyPortfolios.length === 0) return 0;
+
+      // Filter for current year only
+      const currentYearPortfolios = monthlyPortfolios.filter(mp => mp.year === currentYear);
+
+      if (currentYearPortfolios.length === 0) return 0;
+
+      // Calculate YTD cumulative performance using same logic as stablePercentPF
+      let ytdCummPf = 0;
+
+      currentYearPortfolios.forEach(monthData => {
+        // Get trades for this month to apply the same fallback logic
+        const monthTrades = trades.filter(trade => {
+          if (!trade.date) return false;
+          const tradeDate = new Date(trade.date);
+          if (isNaN(tradeDate.getTime())) return false;
+          const tradeMonth = tradeDate.toLocaleString('default', { month: 'short' });
+          const tradeYear = tradeDate.getFullYear();
+          return tradeMonth === monthData.month && tradeYear === monthData.year;
+        });
+
+        // Apply fallback P/L calculation if needed
+        let actualPL = monthData.pl;
+        if (monthTrades.length > 0 && monthData.pl === 0) {
+          actualPL = monthTrades.reduce((sum, trade) => {
+            return sum + calculateTradePL(trade, useCashBasis);
+          }, 0);
+        }
+
+        // Calculate monthly return percentage
+        const effectiveCapital = monthData.effectiveStartingCapital || 0;
+        const monthlyReturn = (effectiveCapital !== 0 && isFinite(effectiveCapital) && isFinite(actualPL))
+          ? (actualPL / effectiveCapital) * 100
+          : 0;
+
+        // Add to YTD cumulative performance
+        if (isFinite(monthlyReturn)) {
+          ytdCummPf += monthlyReturn;
+        }
+      });
+
+      return ytdCummPf;
+    } catch (error) {
+      return 0;
+    }
+  }, [trades, getAllMonthlyTruePortfolios, useCashBasis]);
 
   // 1. Apply the global filter first. This is memoized for performance.
   const filteredTrades = useMemo(() => {
@@ -420,11 +480,13 @@ export const TradeAnalytics = React.memo(function TradeAnalytics() {
                         <div className="flex justify-between items-center">
                           <h3 className="text-xl font-semibold tracking-tight">Portfolio Performance</h3>
                           <div className="flex items-center gap-3">
-                            <motion.div className={`flex items-center gap-1.5 px-2 py-1 rounded-md ${lastPlPercentage >= 0 ? 'bg-success/10' : 'bg-danger/10'}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                              <Icon icon={lastPlPercentage >= 0 ? "lucide:trending-up" : "lucide:trending-down"} className={lastPlPercentage >= 0 ? "text-success" : "text-danger"} />
-                              <span className={`text-sm font-medium ${lastPlPercentage >= 0 ? 'text-success' : 'text-danger'}`}>{lastPlPercentage !== 0 ? `${lastPlPercentage > 0 ? '+' : ''}${lastPlPercentage.toFixed(2)}%` : '--'}</span>
+                            <motion.div className={`flex items-center gap-1.5 px-2 py-1 rounded-md ${ytdPercentage >= 0 ? 'bg-success/10' : 'bg-danger/10'}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                              <Icon icon={ytdPercentage >= 0 ? "lucide:trending-up" : "lucide:trending-down"} className={ytdPercentage >= 0 ? "text-success" : "text-danger"} />
+                              <span className={`text-sm font-medium ${ytdPercentage >= 0 ? 'text-success' : 'text-danger'}`}>
+                                {ytdPercentage !== 0 ? `${ytdPercentage > 0 ? '+' : ''}${ytdPercentage.toFixed(2)}%` : '0.00%'}
+                              </span>
                             </motion.div>
-                            <span className="text-sm text-default-500 font-medium min-w-[40px] text-center">{globalFilter?.label || 'All Time'}</span>
+                            <span className="text-sm text-default-500 font-medium">YTD</span>
                           </div>
                         </div>
                       </CardHeader>

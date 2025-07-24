@@ -353,14 +353,40 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = (props) => {
     return closestData;
   }, [showIndexComparison, indexData]);
 
+  // Find the first trade date to determine when to start showing data
+  const firstTradeDate = React.useMemo(() => {
+    if (!filteredTrades || filteredTrades.length === 0) return null;
+
+    const tradeDates = filteredTrades
+      .map(trade => trade.date)
+      .filter(date => date)
+      .map(date => new Date(date))
+      .filter(date => !isNaN(date.getTime()))
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    return tradeDates.length > 0 ? tradeDates[0] : null;
+  }, [filteredTrades]);
+
   // Use monthlyPortfolios data which already accounts for capital changes and P/L
   // Filter out months with no meaningful data AND months outside global filter range
   const processedChartData = React.useMemo(() => {
+
     const filteredData = monthlyPortfolios
       .filter(monthData => {
         // First check if month is within global filter range
         if (!isMonthInGlobalFilter(monthData.month, monthData.year)) {
           return false;
+        }
+
+        // CRITICAL FIX: Only show months from the first trade onwards
+        if (firstTradeDate) {
+          const monthDate = new Date(monthData.year, getMonthIndex(monthData.month), 1);
+          const firstTradeMonth = new Date(firstTradeDate.getFullYear(), firstTradeDate.getMonth(), 1);
+
+          // Skip months before the first trade
+          if (monthDate < firstTradeMonth) {
+            return false;
+          }
         }
 
         // Then include months that have:
